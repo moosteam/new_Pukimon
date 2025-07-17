@@ -66,20 +66,21 @@ export function usePukimonToBattlefield() {
 
     // 벤치 전용 이벤트 핸들러
     const handleBenchPukimonDetected = (event: CustomEvent) => {
-      const { puki, type } = event.detail
+      const { puki, type, benchNumber } = event.detail
       console.log('벤치 배치를 위한 Pukimon 감지:', {
         puki,
         type,
+        benchNumber,
         myTurn,
         currentDroppedCards: droppedCards,
         gameTurnCount
       })
       
-      processPukimonPlacement(puki, 'bench')
+      processPukimonPlacement(puki, 'bench', benchNumber)
     }
 
     // 공통 처리 함수
-    const processPukimonPlacement = (puki: string, targetArea: 'battle' | 'bench') => {
+    const processPukimonPlacement = (puki: string, targetArea: 'battle' | 'bench', benchNumber?: number) => {
       
       // 매핑된 카드 경로 찾기
       const cardPath = pukimonToCardMap[puki]
@@ -116,11 +117,11 @@ export function usePukimonToBattlefield() {
           }
         }
       } else {
-        // 벤치 강제 배치
+        // 벤치 강제 배치 (특정 번호 지정)
         if (myTurn) {
-          placePokemonInWaitingArea('my', cardPath, cardData)
+          placePokemonInWaitingArea('my', cardPath, cardData, benchNumber)
         } else {
-          placePokemonInWaitingArea('enemy', cardPath, cardData)
+          placePokemonInWaitingArea('enemy', cardPath, cardData, benchNumber)
         }
       }
     }
@@ -219,7 +220,8 @@ export function usePukimonToBattlefield() {
     const placePokemonInWaitingArea = (
       playerType: 'my' | 'enemy',
       cardPath: string,
-      cardData: any
+      cardData: any,
+      specificBenchNumber?: number
     ) => {
       // 배틀필드에 포켓몬이 있는지 확인
       const battleArea = playerType === 'my' ? 'my_battle' : 'enemy_battle'
@@ -228,13 +230,26 @@ export function usePukimonToBattlefield() {
         return
       }
 
-      // 빈 벤치 자리 찾기
+      // 빈 벤치 자리 찾기 또는 특정 번호 사용
       let emptyWaitingSlot = null
-      for (let i = 1; i <= 3; i++) {
-        const waitingId = `${playerType}_waiting_${i}`
+      
+      if (specificBenchNumber) {
+        // 특정 벤치 번호가 지정된 경우
+        const waitingId = `${playerType}_waiting_${specificBenchNumber}`
         if (!droppedCards[waitingId]) {
           emptyWaitingSlot = waitingId
-          break
+        } else {
+          console.log(`벤치 ${specificBenchNumber}번에 이미 포켓몬이 있습니다!`)
+          return
+        }
+      } else {
+        // 빈 자리 자동 찾기
+        for (let i = 1; i <= 3; i++) {
+          const waitingId = `${playerType}_waiting_${i}`
+          if (!droppedCards[waitingId]) {
+            emptyWaitingSlot = waitingId
+            break
+          }
         }
       }
 
