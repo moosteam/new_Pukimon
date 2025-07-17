@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>백엔드 시뮬레이터</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .pukimon-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #FFCC01;
+            color: black;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #ffb700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 푸키몬 백엔드 시뮬레이터</h1>
+        <p>아래 버튼을 클릭하여 프론트엔드로 푸키몬 신호를 보내세요:</p>
+        
+        <div class="pukimon-buttons">
+            <h3>🏟️ 배틀필드 배치</h3>
+            <button onclick="sendBattlePukimon('komadol')">꼬마돌 → 배틀필드</button>
+            <button onclick="sendBattlePukimon('reoko')">레오꼬 → 배틀필드</button>
+            <button onclick="sendBattlePukimon('degiras')">데기라스 → 배틀필드</button>
+            <button onclick="sendBattlePukimon('averas')">애버라스 → 배틀필드</button>
+            <button onclick="sendBattlePukimon('kopuri')">코뿌리 → 배틀필드</button>
+            <button onclick="sendBattlePukimon('kojimo')">꼬지모 → 배틀필드</button>
+            
+            <h3 style="margin-top: 20px;">🪑 벤치 배치</h3>
+            <button onclick="sendBenchPukimon('komadol')">꼬마돌 → 벤치</button>
+            <button onclick="sendBenchPukimon('reoko')">레오꼬 → 벤치</button>
+            <button onclick="sendBenchPukimon('degiras')">데기라스 → 벤치</button>
+            <button onclick="sendBenchPukimon('averas')">애버라스 → 벤치</button>
+            <button onclick="sendBenchPukimon('kopuri')">코뿌리 → 벤치</button>
+            <button onclick="sendBenchPukimon('kojimo')">꼬지모 → 벤치</button>
+        </div>
+        
+        <button onclick="checkLocalStorage()" style="width: 100%; background-color: #4CAF50; color: white;">
+            📦 LocalStorage 확인하기
+        </button>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function sendBattlePukimon(puki) {
+            const statusDiv = document.getElementById('status');
+            const responseDiv = document.getElementById('response');
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/battle?puki=${puki}`);
+                const data = await response.json();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `⚔️ ${puki}를 배틀필드에 배치 신호를 보냈습니다!`;
+                statusDiv.style.display = 'block';
+                
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.style.display = 'block';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ 오류: 서버가 실행 중인지 확인하세요!';
+                statusDiv.style.display = 'block';
+                
+                responseDiv.textContent = error.toString();
+                responseDiv.style.display = 'block';
+            }
+        }
+
+        async function sendBenchPukimon(puki) {
+            const statusDiv = document.getElementById('status');
+            const responseDiv = document.getElementById('response');
+            
+            try {
+                const response = await fetch(`http://localhost:3001/api/bench?puki=${puki}`);
+                const data = await response.json();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `🪑 ${puki}를 벤치에 배치 신호를 보냈습니다!`;
+                statusDiv.style.display = 'block';
+                
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.style.display = 'block';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ 오류: 서버가 실행 중인지 확인하세요!';
+                statusDiv.style.display = 'block';
+                
+                responseDiv.textContent = error.toString();
+                responseDiv.style.display = 'block';
+            }
+        }
+        
+        function checkLocalStorage() {
+            const responseDiv = document.getElementById('response');
+            const statusDiv = document.getElementById('status');
+            
+            // 새 창에서 프론트엔드 열기
+            window.open('http://localhost:3000', '_blank');
+            
+            statusDiv.className = 'status success';
+            statusDiv.textContent = '🔍 프론트엔드에서 개발자 도구를 열고 콘솔과 Application > Local Storage를 확인하세요!';
+            statusDiv.style.display = 'block';
+            
+            responseDiv.textContent = `localStorage 확인 방법:
+1. 프론트엔드 페이지에서 F12 (개발자 도구)
+2. Application 탭 클릭
+3. Storage > Local Storage > http://localhost:3000 클릭
+4. 저장된 데이터 확인:
+   - currentPukimon: 현재 푸키몬
+   - lastPukimonUpdate: 마지막 업데이트 시간
+   - pukimonHistory: 푸키몬 히스토리`;
+            responseDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

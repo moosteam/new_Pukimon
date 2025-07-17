@@ -1,120 +1,208 @@
 "use client"
 
-import { useEffect } from "react";
-import { DndContext } from '@dnd-kit/core';
-import { OpeningOverlay } from "./components/AnimationManager/OpeningOverlay";
-import { CoinAnimation } from "./components/AnimationManager/CoinAnimation";
-import { PlayerCards } from "./components/Card/PlayerCards";
-import { GameBoard } from "./components/BattleField/GameBoard";
-import { FieldCards } from "./components/BattleField/FieldCards";
-import { Hand } from "./components/Area/Hand";
-import { Waiting } from "./components/Area/Waiting";
-import { ScoreTimer } from "./components/ScoreTimer";
-// Import custom hooks
-import { useAnimationSequence } from "./hooks/useAnimationSequence";
-import { useCardManagement } from "./hooks/useCardManagement";
-import { useDragHandlers } from "./hooks/useDragHandlers";
-import { useBGM } from "./hooks/useBGM";
-import { showFullScreenEffectAtom } from "./atom";
-import { useAtom } from "jotai";
-import { showScoreAnimationAtom, scoreAnimationPropsAtom } from "./atom";
-import { ScoreAnimation } from "./components/ScoreAnimation";
+import { useState, useEffect } from 'react';
+import { usePukimonListener } from './hooks/usePukimonListener';
 
-import { BGMStartPrompt } from "./components/BGMStartPrompt";
-
-export default function App() {
-  // Use animation hook
-  const {
-    boardRotateZ, 
-    boardOpacity,
-    playerCardRotate,
-    playerCardPosition,
-    startVideo,
-    coinTextOpacity,
-  } = useAnimationSequence();
-
-  // Use attack animation hook
-  const {
-    boardScale,
-  } = useAnimationSequence();
-
-  const {
-    addCardToMyHand,
-  } = useCardManagement();
-
-  // Use drag handlers hook
-  const { handleDragEnd } = useDragHandlers();
-
-  // Use BGM hook
-  const { currentBGM, hasUserInteracted } = useBGM();
-
-  const [showFullScreenEffect, setShowFullScreenEffect] = useAtom(showFullScreenEffectAtom);
-  const [showScoreAnimation] = useAtom(showScoreAnimationAtom);
-  const [scoreAnimationProps] = useAtom(scoreAnimationPropsAtom);
-
-  // Initial card draw effect
+export default function HomePage() {
+  const [gameMode, setGameMode] = useState<'web' | 'card'>('web');
+  const [profileMode, setProfileMode] = useState<'photo' | 'noPhoto'>('noPhoto');
+  
+  // Pukimon 리스너 훅 사용
+  const { getCurrentPukimon, getPukimonHistory } = usePukimonListener(1000); // 1초마다 체크
+  
+  // Pukimon 감지 이벤트 리스너
   useEffect(() => {
-    // 10초 후에 실행될 타이머 설정
-    const timer = setTimeout(() => {
-      addCardToMyHand(4);
-    }, 8000); // 10000ms = 10초
-
-    // 컴포넌트가 언마운트될 때 타이머 정리
-    return () => clearTimeout(timer);
+    const handlePukimonDetected = (event: CustomEvent) => {
+      console.log('새 Pukimon 감지됨:', event.detail.puki);
+      // 여기서 추가적인 UI 업데이트나 알림을 표시할 수 있습니다
+    };
+    
+    window.addEventListener('pukimonDetected', handlePukimonDetected as EventListener);
+    
+    return () => {
+      window.removeEventListener('pukimonDetected', handlePukimonDetected as EventListener);
+    };
   }, []);
+
+  // 게임 시작 처리
+  const handleGameStart = () => {
+    if (profileMode === 'photo') {
+      // 프로필 촬영을 선택했다면 카메라 페이지로 이동
+      window.location.href = '/camera';
+      return;
+    }
+    // 프로필 촬영을 선택하지 않았다면 바로 게임 시작
+    window.location.href = '/game';
+  };
   
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      {/* 전체 화면 이펙트 */}
-      {showFullScreenEffect && (
-        <div className="fixed inset-0 z-[99999] pointer-events-none">
-          <video
-            autoPlay
-            muted={true}
-            playsInline
-            className="w-full h-full object-cover"
-            onEnded={() => setShowFullScreenEffect(false)}
-          >
-            <source src="/fullscreeneffect.webm" type="video/webm" />
-          </video>
-        </div>
-      )}
-
-      {/* 점수 애니메이션 - GameBoard와 완전 분리 */}
-      {showScoreAnimation && (
-        <ScoreAnimation {...scoreAnimationProps} />
-      )}
-
-      <div className="w-full h-full bg-[#C2DAF6] relative overflow-hidden">
-        {/* BGM 시작 프롬프트 */}
-        <BGMStartPrompt hasUserInteracted={hasUserInteracted} />
-        <ScoreTimer isPrimary/>
-        <ScoreTimer/>
-        {/* 플레이어 카드 */}
-        <PlayerCards
-          playerCardRotate={playerCardRotate}
-          playerCardPosition={playerCardPosition}
-          myImageSrc={"/ui/player1.png"}
-          emenyImageSrc={"/ui/player2.png"}
-        />
-        {/* 오프닝 애니메이션 오버레이 */}
-        <OpeningOverlay boardOpacity={boardOpacity} />
-        {/* 게임 필드 */}
-        <GameBoard boardRotateZ={boardRotateZ} boardScale={boardScale}>
-          {/* 적 카드 영역 */}
-          <Hand isMy={false}/>
-          {/* 필드 카드 영역 */}
-          <Waiting isMy={false} />
-          {/* 중앙 카드 영역 */}
-          <FieldCards />
-          {/* 하단 필드 카드 영역 */}
-          <Waiting isMy={true} />
-          {/* 내 핸드 영역 - 드래그 가능한 카드들 */}
-          <Hand isMy={true} />
-          {/* 비디오 영역 */}
-          <CoinAnimation startVideo={startVideo} coinTextOpacity={coinTextOpacity} />
-        </GameBoard>
+    <div className="h-screen bg-[#FFCC01] flex items-center justify-center p-4 overflow-hidden">
+      {/* 배경 애니메이션 효과 */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(30)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 bg-white/30 rounded-full animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${3 + Math.random() * 4}s`
+            }}
+          />
+        ))}
       </div>
-    </DndContext>
+
+      {/* 메인 컨테이너 */}
+      <div className="relative bg-[#FFCC01] backdrop-blur-lg rounded-3xl shadow-2xl p-6 max-w-5xl w-full h-[95vh] overflow-y-auto scrollbar-hide">
+        {/* 헤더 */}
+        <div className="text-center mb-6">
+          {/* 푸키몬 타이틀 이미지 */}
+          <div className="mb-4">
+            <img 
+              src="/pukimon.png" 
+              alt="푸키몬 로고" 
+              className="mx-auto h-20 md:h-24 object-contain drop-shadow-lg"
+            />
+          </div>
+          <p className="text-black text-base md:text-lg">
+            게임 설정을 선택하고 모험을 시작하세요!
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 왼쪽: 게임 설정 */}
+          <div className="space-y-6">
+            {/* 게임 모드 선택 */}
+            <div>
+              <h3 className="text-xl font-bold text-black mb-3 flex items-center">
+                🎯 게임 모드
+              </h3>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setGameMode('web')}
+                  className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                    gameMode === 'web'
+                      ? 'border-blue-500 bg-yellow-200 shadow-lg scale-105'
+                      : 'border-gray-200 bg-yellow-50 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="text-2xl">💻</div>
+                    <div className="text-left">
+                      <h4 className="font-bold text-base text-black">웹에서만 플레이</h4>
+                      <p className="text-black text-sm">화면상의 카드로만 게임 진행</p>
+                    </div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setGameMode('card')}
+                  className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                    gameMode === 'card'
+                      ? 'border-purple-500 bg-yellow-200 shadow-lg scale-105'
+                      : 'border-gray-200 bg-yellow-50 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="text-2xl">📱</div>
+                    <div className="text-left">
+                      <h4 className="font-bold text-base text-black">카드 인식 사용</h4>
+                      <p className="text-black text-sm">실제 카드를 카메라로 인식</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* 프로필 설정 */}
+            <div>
+              <h3 className="text-xl font-bold text-black mb-3 flex items-center">
+                📸 프로필 설정
+              </h3>
+              <div className="space-y-3">
+                <button
+                  onClick={() => setProfileMode('photo')}
+                  className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                    profileMode === 'photo'
+                      ? 'border-green-500 bg-yellow-200 shadow-lg scale-105'
+                      : 'border-gray-200 bg-yellow-50 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="text-2xl">📷</div>
+                    <div className="text-left">
+                      <h4 className="font-bold text-base text-black">프로필 촬영</h4>
+                      <p className="text-black text-sm">카메라로 프로필 사진 촬영</p>
+                    </div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setProfileMode('noPhoto')}
+                  className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                    profileMode === 'noPhoto'
+                      ? 'border-orange-500 bg-yellow-200 shadow-lg scale-105'
+                      : 'border-gray-200 bg-yellow-50 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="text-2xl">🚫</div>
+                    <div className="text-left">
+                      <h4 className="font-bold text-base text-black">프로필 촬영 X</h4>
+                      <p className="text-black text-sm">기본 아바타 사용</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 오른쪽: 시작 버튼 */}
+          <div className="flex flex-col justify-center">
+            {/* 게임 시작 버튼 */}
+            <div className="text-center">
+              <button
+                onClick={handleGameStart}
+                className="inline-block bg-gradient-to-r from-blue-500 to-purple-600 text-black font-bold text-xl px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 w-full md:w-auto"
+              >
+                {profileMode === 'photo' ? '📷 프로필 촬영하기' : '🚀 게임 시작하기'}
+              </button>
+              <p className="text-black text-sm mt-3">
+                {profileMode === 'photo' 
+                  ? '프로필 촬영 페이지로 이동합니다'
+                  : '클릭하면 게임이 시작됩니다'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) scale(1);
+            opacity: 0.7;
+          }
+          50% {
+            transform: translateY(-20px) scale(1.1);
+            opacity: 1;
+          }
+        }
+        
+        .animate-float {
+          animation: float linear infinite;
+        }
+        
+        .scrollbar-hide {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;  /* Chrome, Safari and Opera */
+        }
+      `}</style>
+    </div>
   );
 }

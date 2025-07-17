@@ -98,7 +98,7 @@ export const ScoreAnimation: React.FC<ScoreAnimationProps> = ({
                   animationDelay: `${Math.random() * 2}s`,
                   animationDuration: `${2 + Math.random() * 2}s`
                 }}
-              />
+        />
             ))}
           </div>
         )}
@@ -226,7 +226,7 @@ export const ScoreAnimation: React.FC<ScoreAnimationProps> = ({
                     {/* 점수 하이라이트 링 */}
                     {isCurrent && showScoreGlow && (
                       <>
-                        <div className="absolute inset-0 border-4 border-yellow-300 rounded-full animate-ping opacity-75" />
+                      <div className="absolute inset-0 border-4 border-yellow-300 rounded-full animate-ping opacity-75" />
                         <div className="absolute inset-0 border-2 border-white rounded-full animate-ping opacity-50" style={{ animationDelay: '0.5s' }} />
                       </>
                     )}

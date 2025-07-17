@@ -71,4 +71,106 @@ export const data: CardData = {
     afterEvo: "card/리자드.png",
     retreatCost:1
   },
+  "card/레오꼬.png": {
+    name: "레오꼬",
+    isEx: false,
+    type: "불",
+    hp: 70,
+    skill: [
+      {
+        name: "박치기",
+        damage: 20,
+        energy: 2,
+      },
+    ],
+    weakness: "물",
+    beforeEvo: "",
+    afterEvo: "",
+    retreatCost: 2
+  },
+  "card/꼬마돌.png": {
+    name: "꼬마돌",
+    isEx: false,
+    type: "격투",
+    hp: 70,
+    skill: [
+      {
+        name: "몸통박치기",
+        damage: 10,
+        energy: 1,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "",
+    afterEvo: "",
+    retreatCost: 2
+  },
+  "card/데기라스.png": {
+    name: "데기라스",
+    isEx: false,
+    type: "격투",
+    hp: 80,
+    skill: [
+      {
+        name: "보복",
+        damage: 30,
+        energy: 2,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "",
+    afterEvo: "",
+    retreatCost: 1
+  },
+  "card/애버라스.png": {
+    name: "애버라스",
+    isEx: false,
+    type: "격투",
+    hp: 70,
+    skill: [
+      {
+        name: "야금야금",
+        damage: 30,
+        energy: 2,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "",
+    afterEvo: "",
+    retreatCost: 2
+  },
+  "card/코뿌리.png": {
+    name: "코뿌리",
+    isEx: false,
+    type: "격투",
+    hp: 110,
+    skill: [
+      {
+        name: "암석떨구기",
+        damage: 80,
+        energy: 3,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "",
+    afterEvo: "",
+    retreatCost: 4
+  },
+  "card/꼬지모.png": {
+    name: "꼬지모",
+    isEx: false,
+    type: "격투",
+    hp: 110,
+    skill: [
+      {
+        name: "세게되돌리기",
+        damage: 20,
+        energy: 1,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "",
+    afterEvo: "",
+    retreatCost: 2
+  },
 };

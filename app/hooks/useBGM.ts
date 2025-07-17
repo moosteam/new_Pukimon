@@ -153,7 +153,7 @@ export const useBGM = () => {
 
         try {
             // 기존 BGM 페이드 아웃 및 완전 정리
-            await fadeOut(800);
+        await fadeOut(800);
             
             // 이전 오디오 레퍼런스 정리
             if (audioRef.current) {
@@ -161,35 +161,35 @@ export const useBGM = () => {
                 audioRef.current = null;
             }
 
-            // 새로운 BGM 생성 및 재생
-            const audio = new Audio(bgmFiles[bgmType]);
-            audio.loop = true;
-            audio.volume = 0;
+        // 새로운 BGM 생성 및 재생
+        const audio = new Audio(bgmFiles[bgmType]);
+        audio.loop = true;
+        audio.volume = 0;
+        
+        // 자동 재생 정책 우회를 위한 설정
+        audio.muted = false;
+        audio.autoplay = false;
+        
+        try {
+            await audio.play();
+            // 페이드 인 시작
+            await fadeIn(audio, 800);
             
-            // 자동 재생 정책 우회를 위한 설정
-            audio.muted = false;
-            audio.autoplay = false;
-            
-            try {
-                await audio.play();
-                // 페이드 인 시작
-                await fadeIn(audio, 800);
-                
-                audioRef.current = audio;
-                setCurrentBGM(bgmType);
-            } catch (error) {
-                console.log('BGM 재생 실패:', error);
-                // 재생 실패 시 다시 시도
-                setTimeout(async () => {
-                    try {
-                        await audio.play();
-                        await fadeIn(audio, 800);
-                        audioRef.current = audio;
-                        setCurrentBGM(bgmType);
-                    } catch (e) {
-                        console.log('BGM 재생 재시도 실패:', e);
-                    }
-                }, 100);
+            audioRef.current = audio;
+            setCurrentBGM(bgmType);
+        } catch (error) {
+            console.log('BGM 재생 실패:', error);
+            // 재생 실패 시 다시 시도
+            setTimeout(async () => {
+                try {
+                    await audio.play();
+                    await fadeIn(audio, 800);
+                    audioRef.current = audio;
+                    setCurrentBGM(bgmType);
+                } catch (e) {
+                    console.log('BGM 재생 재시도 실패:', e);
+                }
+            }, 100);
             }
         } finally {
             isPlayingRef.current = false;
