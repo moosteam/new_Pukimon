@@ -111,14 +111,15 @@ export const FieldCards = () => {
         const firstSkill = data[path]?.skill?.[0];
         if (!firstSkill) return;
 
+        // 항상 정확한 attackingCard 를 설정한다.
+        setAttackingCard(cardId);
+
         if (!isReadyToAttack) {
-            // 먼저 준비 상태로 만들고, 짧은 지연 후 스킬 실행
-            setAttackingCard(cardId);
             setIsReadyToAttack(true);
-            setTimeout(() => handleSkillClick(firstSkill), 150);
-        } else {
-            handleSkillClick(firstSkill);
         }
+
+        // 상태 업데이트 반영 후 스킬을 실행하기 위해 약간 지연
+        setTimeout(() => handleSkillClick(firstSkill), 120);
     }, [myTurn, isReadyToAttack, droppedCards]);
 
     // 공격 리스너 훅 사용 (페이지마다 한 번 호출해야 하므로 컴포넌트 최상위에서 호출)
