@@ -173,4 +173,72 @@ export const data: CardData = {
     afterEvo: "",
     retreatCost: 2
   },
+  "card/뿔카노.png": {
+    name: "뿔카노",
+    isEx: false,
+    type: "격투",
+    hp: 80,
+    skill: [
+      {
+        name: "넘어뜨리기",
+        damage: 50,
+        energy: 2,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "card/코뿌리.png",
+    afterEvo: "",
+    retreatCost: 3
+  },
+  "card/데구리.png": {
+    name: "데구리",
+    isEx: false,
+    type: "격투",
+    hp: 100,
+    skill: [
+      {
+        name: "몸통박치기",
+        damage: 50,
+        energy: 2,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "",
+    afterEvo: "",
+    retreatCost: 3
+  },
+  "card/마기라스.png": {
+    name: "마기라스",
+    isEx: false,
+    type: "격투",
+    hp: 170,
+    skill: [
+      {
+        name: "씹어뜯기",
+        damage: 130,
+        energy: 4,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "card/데기라스.png",
+    afterEvo: "",
+    retreatCost: 4
+  },
+  "card/딱구리.png": {
+    name: "딱구리",
+    isEx: false,
+    type: "격투",
+    hp: 170,
+    skill: [
+      {
+        name: "랜드크래시",
+        damage: 140,
+        energy: 4,
+      },
+    ],
+    weakness: "풀",
+    beforeEvo: "card/코뿌리.png",
+    afterEvo: "",
+    retreatCost: 4
+  },
 };

@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+'use client'
+
+import { useState, useEffect, useCallback } from "react";
 import { useAtomValue, useAtom } from "jotai";
 import { data } from "../../data/cards";
 import { 
@@ -14,6 +16,7 @@ import SlidingBanner from "../SlidingBanner";
 import { useCardManagement } from "../../hooks/useCardManagement";
 import { ScoreAnimation } from "../ScoreAnimation";
 import { GameEndOverlay } from "../GameEndOverlay";
+import { useAttackListener } from "@/app/hooks/useAttackListener";
 
 
 export const FieldCards = () => {
@@ -99,6 +102,27 @@ export const FieldCards = () => {
         setCurrentSkill(skill);
         handleAttack(skill);
     };
+
+    // 백엔드 공격 신호가 왔을 때 자동으로 첫 번째 스킬을 실행하는 콜백
+    const fireFirstSkill = useCallback(() => {
+        const cardId = myTurn ? 'my_battle' : 'enemy_battle';
+        const path = droppedCards[cardId];
+        if (!path) return;
+        const firstSkill = data[path]?.skill?.[0];
+        if (!firstSkill) return;
+
+        if (!isReadyToAttack) {
+            // 먼저 준비 상태로 만들고, 짧은 지연 후 스킬 실행
+            setAttackingCard(cardId);
+            setIsReadyToAttack(true);
+            setTimeout(() => handleSkillClick(firstSkill), 150);
+        } else {
+            handleSkillClick(firstSkill);
+        }
+    }, [myTurn, isReadyToAttack, droppedCards]);
+
+    // 공격 리스너 훅 사용 (페이지마다 한 번 호출해야 하므로 컴포넌트 최상위에서 호출)
+    useAttackListener({ onAttack: fireFirstSkill, pollInterval: 500 });
 
     return (
         <div className={`z-50 flex flex-row w-full justify-between items-center ${showScoreAnimation ? 'pointer-events-none' : ''}`}>

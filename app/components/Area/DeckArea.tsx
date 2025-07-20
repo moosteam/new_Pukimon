@@ -62,6 +62,7 @@ export const DeckArea: React.FC<DeckAreaProps> = ({
             <div>
                 {/* 턴 종료 버튼 - 가시성은 buttonStyle로 제어 */}
                 <button
+                    id="turn-end-button"
                     onClick={onEndTurn}
                     className="bg-white text-black hover:bg-blue-100 text-sm mt-4 mb-4 font-bold py-2 px-2 rounded-full shadow-lg transition-all duration-300"
                     style={buttonStyle as React.CSSProperties}

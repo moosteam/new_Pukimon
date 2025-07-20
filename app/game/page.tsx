@@ -21,6 +21,7 @@ import { showScoreAnimationAtom, scoreAnimationPropsAtom } from "../atom";
 import { ScoreAnimation } from "../components/ScoreAnimation";
 import { usePukimonToBattlefield } from "../hooks/usePukimonToBattlefield";
 import { usePukimonBattleBenchListener } from "../hooks/usePukimonBattleBenchListener";
+import { useTurnEndListener } from "../hooks/useTurnEndListener";
 
 
 
@@ -42,6 +43,7 @@ export default function App() {
 
   const {
     addCardToMyHand,
+    onEndTurn,
   } = useCardManagement();
 
   // Use drag handlers hook
@@ -53,21 +55,34 @@ export default function App() {
   // 게임 페이지 초기 로딩 시 localStorage 정리
   useEffect(() => {
     console.log('🧹 게임 페이지 초기화 - localStorage 완전 정리')
+    // 카드 관련 정리
     localStorage.removeItem('currentBattlePukimon')
     localStorage.removeItem('lastBattlePukimonUpdate')
     localStorage.removeItem('lastBattleRequestTimestamp')
     localStorage.removeItem('currentBenchPukimon')
     localStorage.removeItem('lastBenchPukimonUpdate')
     localStorage.removeItem('lastBenchRequestTimestamp')
+    // 턴 종료 관련 정리
+    localStorage.setItem('turnend', 'false')
+    console.log('🔄 turnend 초기값 false로 설정')
   }, [])
 
   // Use Pukimon to battlefield hook
   usePukimonToBattlefield();
   
-      // Use Pukimon battle/bench listener hook (활성화됨)
+            // Use Pukimon battle/bench listener hook (활성화됨)
     usePukimonBattleBenchListener(1000); // API 요청 감지하여 자동 카드 배치
-
-  const [showFullScreenEffect, setShowFullScreenEffect] = useAtom(showFullScreenEffectAtom);
+    
+    // Use turn end listener hook
+    useTurnEndListener({ 
+      pollInterval: 500, // 0.5초로 단축
+      onTurnEnd: () => {
+        console.log('🚨 턴 종료 함수 호출됨!')
+        onEndTurn()
+      }
+    });
+  
+    const [showFullScreenEffect, setShowFullScreenEffect] = useAtom(showFullScreenEffectAtom);
   const [showScoreAnimation] = useAtom(showScoreAnimationAtom);
   const [scoreAnimationProps] = useAtom(scoreAnimationPropsAtom);
 

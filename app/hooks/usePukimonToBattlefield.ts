@@ -30,7 +30,15 @@ const pukimonToCardMap: Record<string, string> = {
   'pikachu': 'card/피카츄.png',
   'charizard': 'card/리자몽ex.png',
   'charmander': 'card/파이리.png',
-  'charmeleon': 'card/리자드.png'
+  'charmeleon': 'card/리자드.png',
+  // ----- 🔧 BUG FIX: 데구리, 뿔카노 카드가 배치되지 않던 문제 -----
+  //  서버/카메라에서 전달되는 이름과 매칭될 수 있도록 한글·로마자 키를 모두 등록합니다.
+  // 최신 데이터 세트에 맞춰 정확한 이미지 경로로 수정
+  'deguri': 'card/데구리.png',
+  'pulkano': 'card/뿔카노.png',
+  // 추가: 딱구리·마기라스
+  'takguri': 'card/딱구리.png',
+  'magiras': 'card/마기라스.png',
 }
 
 export function usePukimonToBattlefield() {
@@ -81,6 +89,14 @@ export function usePukimonToBattlefield() {
 
     // 공통 처리 함수
     const processPukimonPlacement = (puki: string, targetArea: 'battle' | 'bench', benchNumber?: number) => {
+      
+      console.log('🎯 processPukimonPlacement 시작:', {
+        puki,
+        targetArea,
+        benchNumber,
+        currentTurn: myTurn ? '내 턴' : '상대 턴',
+        myTurn
+      })
       
       // 매핑된 카드 경로 찾기
       const cardPath = pukimonToCardMap[puki]
@@ -197,8 +213,10 @@ export function usePukimonToBattlefield() {
           setMyHandList(prev => {
             const index = prev.findIndex(card => card === cardPath)
             if (index !== -1) {
+              console.log('내 손에서 카드 제거:', cardPath)
               return prev.filter((_, i) => i !== index)
             }
+            console.log('내 손에 해당 카드가 없음 (정상 - API 배치):', cardPath)
             return prev
           })
         } else {
@@ -206,8 +224,10 @@ export function usePukimonToBattlefield() {
           setEnemyHandList(prev => {
             const index = prev.findIndex(card => card === cardPath)
             if (index !== -1) {
+              console.log('상대 손에서 카드 제거:', cardPath)
               return prev.filter((_, i) => i !== index)
             }
+            console.log('상대 손에 해당 카드가 없음 (정상 - API 배치):', cardPath)
             return prev
           })
         }
@@ -329,6 +349,10 @@ export function usePukimonToBattlefield() {
           const newHP = [...enemyWaitingHP]
           newHP[waitingPosition] = cardData.hp
           setEnemyWaitingHP(newHP)
+          
+          const newEnergy = [...enemyWaitingEnergy]
+          newEnergy[waitingPosition] = 0
+          setEnemyWaitingEnergy(newEnergy)
           
           setEnemyHandList(prev => {
             const index = prev.findIndex(card => card === cardPath)
